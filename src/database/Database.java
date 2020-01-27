@@ -173,11 +173,11 @@ public class Database {
 				}
 				HashMap<Integer, Integer> temp1 = sortByValue(temp);
 
-				int place = -1 , k = 0;
+				int place = -1 , k = 0, score = 0;
 				for(Integer key : temp1.keySet()) {
-					if(key == id) {
+					if(key == id && score < temp1.get(key)) {
 						place = k;
-						break;
+						score = temp1.get(key);
 					}
 					k++;
 				}

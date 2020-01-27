@@ -113,10 +113,6 @@ public class MainGUI extends JFrame implements ActionListener, MouseListener{
 		auto.addActionListener(this);
 		op.add(auto);
 
-		MenuItem map = new MenuItem("Show in map");
-		map.addActionListener(this);
-		op.add(map);
-
 
 		////////// Database Menu //////////
 

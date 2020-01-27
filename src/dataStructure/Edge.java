@@ -72,4 +72,10 @@ public class Edge implements edge_data,Serializable{
 		this.tag = t;
 	}	
 
+	
+	@Override
+	public String toString() {
+		return "Soruce Vretex: " + src.toString() + "\nDestination Vertex: " + dest.toString() + "\nEdge Weight: " 
+				+ this.weight;
+	}
 }

@@ -205,10 +205,16 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 		dijakstra(src);
 		List<node_data> path = new ArrayList<>();
 		node_data cur = g.getNode(dest);
-
-		while(!cur.getInfo().isEmpty()||cur.getKey()==g.getNode(src).getKey()) {
+		if(src == dest) {
 			path.add(cur);
-			cur = g.getNode(Integer.parseInt(cur.getInfo()));
+			return path;
+		}
+		//System.out.println("src: " + src + " dest: " + dest);
+		while(!cur.getInfo().isEmpty() || cur.getKey()==g.getNode(src).getKey()) {
+			path.add(cur);
+			if(cur.getInfo() != "")
+				cur = g.getNode(Integer.parseInt(cur.getInfo()));
+				
 			if(cur.getKey()==g.getNode(src).getKey()) break;
 		}
 		path.add(cur);

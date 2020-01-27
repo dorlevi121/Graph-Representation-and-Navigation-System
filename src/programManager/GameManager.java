@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
+import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalTime;
@@ -28,6 +29,7 @@ import org.json.JSONObject;
 import Server.Game_Server;
 import Server.game_service;
 import dataStructure.DGraph;
+import dataStructure.Edge;
 import dataStructure.GraphFruit;
 import dataStructure.GraphRobot;
 import dataStructure.edge_data;
@@ -58,7 +60,7 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 	private int gameNumber, ID;
 	Thread t;
 
-	
+
 	///Icons///
 	ImageIcon robotIcon = new ImageIcon("icons/robotIcon.png");
 	ImageIcon bananaIcon = new ImageIcon("icons/bananaIcon.png");
@@ -240,8 +242,8 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 			JSONObject line = new JSONObject(info);
 			JSONObject ttt = line.getJSONObject("GameServer");
 			int rs = ttt.getInt("robots");
-			for(int a = 0;a<rs;a++) {
-				game.addRobot(a);
+			for(int a = 0; a<rs; a++) {
+				game.addRobot(findTheHightValueFruit());
 			}
 		}
 		catch (JSONException e) {e.printStackTrace();}
@@ -253,6 +255,24 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 			this.robots.add(robot);
 		}
 
+	}
+
+
+
+	public int findTheHightValueFruit() {
+		int location = -1, value = 0, count = -1 , i = -1;
+
+		for(GraphFruit fruit : this.fruits) {
+			count++;
+			if(fruit.getValue() > value && !fruit.getVisited()) {
+				value = fruit.getValue();
+				location = fruit.getEdge().getSrc();
+				i = count;
+			}
+		}
+		fruits.get(i).setVisited(true);
+
+		return location;
 	}
 
 
@@ -356,10 +376,9 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 
 		autoGame = new AutoGame(this.graph);
 		autoGame.buildRobotsPath(this.robots, this.fruits);
-
 		game.startGame();
-		threadListeningToKml();
 
+		threadListeningToKml();
 		Thread thread = new Thread(){
 			public void run(){
 				while(game.isRunning()) {
@@ -383,21 +402,60 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 	 * Function that moves the robots automatically
 	 */
 	private void moveAutoRobots() {
-		game.move();
-		int count = 0;
-		for(GraphRobot r : robots) {
-			while(!r.getPath().isEmpty()) {
-				game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
-				r.getPath().remove(0);
+		List<String> log = game.move();
+		if(log!=null) {
+			for(int i=0;i<log.size();i++) {
+				String robot_json = log.get(i);
+				try {
+					JSONObject line = new JSONObject(robot_json);
+					JSONObject ttt = line.getJSONObject("Robot");
+					int rid = ttt.getInt("id");
+					int dest = ttt.getInt("dest");
+					int count = 0; //robot location
+
+					GraphRobot r = getRobotById(rid);
+						if(r.getPath().size() == 0) 
+							autoGame.buildRobotsPath(this.robots, this.fruits);
+
+						while(!r.getPath().isEmpty()) {
+							game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
+							r.getPath().remove(0);
+						}
+						initFruitsList();
+						r.initRobot(game.getRobots().get(count));
+						autoGame.buildRobotsPath(this.robots, this.fruits);
+					
+					//r.initRobot(game.getRobots().get(count++));
+					repaint();
+				}
+				catch (JSONException e) {e.printStackTrace();}
+
 			}
-			r.initRobot(game.getRobots().get(count++));
-			r.setOnTheWay(false);
-		}	
-		initFruitsList();
-		autoGame.buildRobotsPath(this.robots, this.fruits);
-		repaint();
+		}
+
+		//		int count = 0;
+		//		for(GraphRobot r : robots) {
+		//			while(!r.getPath().isEmpty()) {
+		//				game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
+		//				r.getPath().remove(0);
+		//			}
+		//			initFruitsList();
+		//			r.initRobot(game.getRobots().get(count++));
+		//			autoGame.buildRobotsPath(this.robots, this.fruits);
+		//			repaint();
+		//		}	
+		//
+		//		game.move();
 	} 
 
+
+
+	private GraphRobot getRobotById(int id) {
+		for(GraphRobot robot : robots) {
+			if(robot.getId() == id) return robot;
+		}
+		return null;
+	}
 
 
 	/**
@@ -464,7 +522,7 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 		repaint();
 	}
 
-	
+
 
 	private int numberOfGames = 0;//Count the number of games
 	private void clearGame() {
@@ -505,7 +563,7 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 	private boolean startGameMesseges() {
 		setVisible(true);
 		initGame();
-		
+
 		String userId = JOptionPane.showInputDialog("Enter your ID please");
 		int id = Integer.parseInt(userId);
 		this.ID = id;
