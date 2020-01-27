@@ -28,13 +28,13 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 	private static final long serialVersionUID = 1L;
 	private graph g;
 
-	
+
 	//Empty Constructor
 	public Graph_Algo() {
 		this.g = new DGraph();
 	}
 
-	
+
 	//Copy Constructor
 	public Graph_Algo(graph dg) {
 		this.g = dg;
@@ -53,11 +53,12 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 	/**
 	 * Set graph g
 	 * @param g
-	 */	public void setG(graph g) {
+	 */	
+	public void setG(graph g) {
 		this.g = g;
 	}
-	
-	 
+
+
 	@Override
 	public void init(graph g) {
 		this.g = (DGraph) g;
@@ -76,7 +77,7 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 		catch(Exception ex) {
 			ex.printStackTrace();		}
 	}
-	
+
 
 	@Override
 	public void save(String file_name) {
@@ -127,7 +128,7 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 			vertex.setTag(0);
 	}
 
-	
+
 	@Override
 	public double shortestPathDist(int src, int dest) {
 		if(dest>this.g.getV().size()) return -1;
@@ -135,7 +136,7 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 		return g.getNode(dest).getWeight();
 	}
 
-	
+
 	//	This algorithm finding the shortest paths between nodes in a graph.
 	private void dijakstra(int src) {
 		ArrayList<node_data> checked = new ArrayList<>();
@@ -150,13 +151,13 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 		}
 
 		node_data current = this.g.getNode(src);
-		
+
 		while(!unChecked.isEmpty() || Infinity(g) || current != null) {
 			checked.add(current);
 			unChecked.remove(current);
+
 			Collection<edge_data> e = this.g.getE(current.getKey());
 			if(e==null) {
-
 				current = unvistedmin(unChecked);
 				if(current==null) break;
 				continue;
@@ -164,7 +165,7 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 
 			for(edge_data edge : e) {
 				node_data destVertex = this.g.getNode(edge.getDest());
-				if(current.getWeight()+edge.getWeight()<g.getNode(destVertex.getKey()).getWeight()) {
+				if(current.getWeight()+edge.getWeight() <= g.getNode(destVertex.getKey()).getWeight()) {
 					g.getNode(destVertex.getKey()).setWeight(edge.getWeight()+current.getWeight()); 
 					destVertex.setInfo(""+current.getKey());																		
 				}
@@ -203,22 +204,19 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 		if(dest > this.g.getV().size()) return null;
 		dijakstra(src);
 		List<node_data> path = new ArrayList<>();
-		boolean ans = true;
 		node_data cur = g.getNode(dest);
-		while(ans) {
-			if(cur.getKey() == src) {
-				path.add(cur);
-				ans = false;
-				break;
-			}
+
+		while(!cur.getInfo().isEmpty()||cur.getKey()==g.getNode(src).getKey()) {
 			path.add(cur);
 			cur = g.getNode(Integer.parseInt(cur.getInfo()));
-
+			if(cur.getKey()==g.getNode(src).getKey()) break;
 		}
+		path.add(cur);
+
 		return path;
 	}
 
-	
+
 	//This function return path that included all the vertex from targets list
 	@Override
 	public List<node_data> TSP(List<Integer> targets) {
@@ -228,24 +226,24 @@ public class Graph_Algo implements graph_algorithms, Serializable{
 		for (int i = 0; i < targets.size()-1; i++) {
 			path.addAll(this.shortestPath(targets.get(i), targets.get(i+1)));
 		}
-		
+
 		return path;
 	}
 
-	
+
 	@Override
 	public graph copy() {
 		graph c = new DGraph((DGraph) this.g);
 		return c;
 	}
-	
-	
+
+
 	public String printPath(List <node_data> path) {
 		String ans = "";
 		for (node_data node : path) {
 			ans = node.getKey() + " --> " + ans;
 		} 
-		
+
 		return ans;
 	}
 

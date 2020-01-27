@@ -1,4 +1,4 @@
-package gameClient;
+package database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -226,7 +226,7 @@ public class Database {
 
 
 
-	public static int getNumberOfMoves(int num) {
+	public int getNumberOfMoves(int num) {
 		switch(num) {
 		case 0:
 			return 290;
@@ -257,7 +257,7 @@ public class Database {
 
 
 
-	public static int getStage(int index) {
+	public int getStage(int index) {
 		switch (index) {
 		case 0 : 
 			return 0;

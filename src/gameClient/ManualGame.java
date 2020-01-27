@@ -161,20 +161,22 @@ public class ManualGame {
 	 * 
 	 * @param p - location of first mouse click
 	 * @param robots - list of game fruits
-	 * @return
+	 * @return robot id
 	 */
-	public GraphRobot findRobotByLocation(Point3D p, List<GraphRobot> robots) {
-		GraphRobot r = new GraphRobot();
+	public int findRobotByLocation(Point3D p, List<GraphRobot> robots) {
+		if(p == null || robots.isEmpty()) return -1;
 		double curDistance = Double.MAX_VALUE;
+		int robotId = -1, count = 0;
+		
 		for (GraphRobot robot : robots) {
 			double distance = robot.getGuiLocation().distance2D(p)/10;
-			//System.out.println("robot: " + robot.getId() + " " + distance);
 			if (distance >= 0 && distance <= 15 && curDistance > distance) {
 				curDistance = distance;
-				r = robot;
+				robotId = count;
 			}
+			count++;
 		}
-		return r;
+		return robotId;
 	}
 
 }

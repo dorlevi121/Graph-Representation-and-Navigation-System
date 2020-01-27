@@ -10,6 +10,7 @@ import algorithms.*;
 import dataStructure.*;
 import utils.*;
 import gui.*;
+import programManager.GrapgManager;
 
 /**
  * EX2 Structure test:
@@ -56,8 +57,7 @@ class Ex2Test {
 		return ans;
 	}
 	boolean drawGraph(graph g) { 
-		GraphGUI a = new GraphGUI(g);
-		a.setVisible(true);
+		GrapgManager a = new GrapgManager(g);
 		return true;	
 	}
 	

@@ -3,7 +3,6 @@ package gameClient;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,7 +14,6 @@ import dataStructure.graph;
 import dataStructure.node_data;
 import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.ExtendedData;
-import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Icon;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
@@ -101,8 +99,6 @@ public class KML_Logger {
 				String[] arr = pos.split(",");
 				double x = Double.parseDouble(arr[0]);
 				double y = Double.parseDouble(arr[1]);
-				double z = Double.parseDouble(arr[2]);
-				Point3D p = new Point3D(x, y, z);
 				int type = CurrFruit.getInt("type");
 
 				Placemark fr = doc.createAndAddPlacemark();
@@ -137,9 +133,7 @@ public class KML_Logger {
 				String[] arr = pos.split(",");
 				double x = Double.parseDouble(arr[0]);
 				double y = Double.parseDouble(arr[1]);
-				double z = Double.parseDouble(arr[2]);
-				Point3D posP = new Point3D(x, y, z);
-				int id = CurrBot.getInt("id");
+
 				Placemark bot = doc.createAndAddPlacemark();
 				bot.setStyleUrl("#Bus");
 				bot.createAndSetPoint().addToCoordinates(x, y);

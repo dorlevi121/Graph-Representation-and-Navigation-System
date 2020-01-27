@@ -1,26 +1,24 @@
-package gameClient;
+package programManager;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -35,10 +33,13 @@ import dataStructure.GraphRobot;
 import dataStructure.edge_data;
 import dataStructure.node_data;
 import dataStructure.sortFruitsByValue;
+import gameClient.AutoGame;
+import gameClient.KML_Logger;
+import gameClient.ManualGame;
 import utils.Point3D;
 import utils.Range;
 
-public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
+public class GameManager extends JFrame implements ActionListener, MouseListener{
 
 	/**
 	 * 
@@ -57,12 +58,16 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 	private int gameNumber, ID;
 	Thread t;
 
-	public MyGameGUI() {
+	
+	///Icons///
+	ImageIcon robotIcon = new ImageIcon("icons/robotIcon.png");
+	ImageIcon bananaIcon = new ImageIcon("icons/bananaIcon.png");
+	ImageIcon appleIcon = new ImageIcon("icons/appleIcon.png");
+
+	public GameManager() {
 		this.graph = new DGraph();
 		fruits = new ArrayList<>();
 		robots = new ArrayList<>();
-		setVisible(true);
-		initGame();
 		this.ID = -1;
 
 	}
@@ -74,59 +79,24 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 	 */
 	private void initGame() {
 		this.setSize(1400, 600);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLocation(-34, 80);
 		this.setResizable(true);
-		this.setTitle("Graph Maker");
-		initMenu();
-
+		this.setTitle("Game");
 	}
 
-
-
-	//Init UI menu
-	private void initMenu() {
-		MenuBar menuBar = new MenuBar();
-		this.setMenuBar(menuBar);
-
-		Menu op = new Menu("Game");
-		menuBar.add(op);
-
-		MenuItem manual = new MenuItem("Manual");
-		manual.addActionListener(this);
-		op.add(manual);
-
-		MenuItem auto = new MenuItem("Auto");
-		auto.addActionListener(this);
-		op.add(auto);
-
-
-		Menu db = new Menu("DataBase");
-		menuBar.add(db);
-
-		MenuItem info = new MenuItem("Game Info");
-		info.addActionListener(this);
-		db.add(info);
-
-		MenuItem place = new MenuItem("Place");
-		place.addActionListener(this);
-		db.add(place);
-
-		this.addMouseListener(this);
-
-	}
 
 
 
 	@Override
 	public void paint(Graphics d) {
-
 		BufferedImage bufferedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 		g2d = bufferedImage.createGraphics();
+
 		super.paint(g2d);
+
 		g2d.setColor(Color.BLUE);
-		if(game != null && game.isRunning()) {
+		if(game != null && game.isRunning()) 
 			g2d.drawString("Time to end: " + game.timeToEnd()/1000, 200, 550);
-		}
 
 		if(graph != null) { setRange(); paintNodes(g2d);}
 		if(!fruits.isEmpty()) paintFruites(g2d);
@@ -206,11 +176,11 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 			Point3D pAfter = new Point3D(x, y);
 
 			if(f.getType()<0)
-				d.setColor(Color.ORANGE);
+				d.drawImage(appleIcon.getImage(),(int)pAfter.x()+5, (int)pAfter.y() + 18, 18, 18, this);
 			else 
-				d.setColor(Color.ORANGE);
+				d.drawImage(bananaIcon.getImage(),(int)pAfter.x()+5, (int)pAfter.y() + 18, 18, 18, this);
 
-			d.fillOval((int)pAfter.x()+5 , (int)pAfter.y() + 18 , 15, 15); //Draw fruit
+
 		}
 	}
 
@@ -228,8 +198,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 			y = (400 - y) + 100;
 
 			Point3D pAfter = new Point3D(x, y);
-			d.setColor(Color.BLACK);
-			d.drawOval((int)pAfter.x()-5, (int)pAfter.y() + 17, 18, 18); //Draw Robot
+			d.drawImage(robotIcon.getImage(),(int)pAfter.x()-5, (int)pAfter.y() + 17, 22, 22, this); //Draw Robot
 		}
 
 		d.setColor(Color.RED);
@@ -294,7 +263,8 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 	 * @param gameNumber - game number
 	 */
 	private void initGame(int gameNumber) {
-		Game_Server.login(ID); //Connect to DB
+		if(!Game_Server.login(ID)) //Try to connect to DB
+			JOptionPane.showMessageDialog(this , "Could not connect to server"+ "\nYou can play offline", "ERROR", JOptionPane.ERROR_MESSAGE);
 
 		game = Game_Server.getServer(gameNumber);
 		graph.init(game.getGraph()); //Init graph
@@ -344,123 +314,67 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 
 
 
-	/**
-	 * Listening to user choice from menu bar
-	 * 
-	 * @param event - event listener
-	 */
-	@Override
-	public void actionPerformed(ActionEvent event) {
-		String str = event.getActionCommand();
+	public void playManual() {
+		clearGame();
+		repaint();
+		if(!startGameMesseges()) return;
+		this.manualGame = new ManualGame();
 
-		//Manual Game
-		if(str.equals("Manual")) {
-			clearGame();
+		manualGame.setNodesGuiLocations(this.graph);
+		manualGame.setFruitsGuiLocations(this.fruits);
+		manualGame.setRobotGuiLocations(this.robots);
 
-			String userId = JOptionPane.showInputDialog("Enter your ID please");
-			int id = Integer.parseInt(userId);
-			this.ID = id;
+		addMouseListener(this);
 
-			String scenario = JOptionPane.showInputDialog("Pick a scenario number between 0 to 23");
-			int scanerioNumber = Integer.parseInt(scenario);
-			gameNumber = scanerioNumber;
+		game.startGame();
+		threadListeningToKml();
 
-			initGame(scanerioNumber);
-			this.manualGame = new ManualGame();
+		Runnable move = new Runnable() {
 
-			manualGame.setNodesGuiLocations(this.graph);
-			manualGame.setFruitsGuiLocations(this.fruits);
-			manualGame.setRobotGuiLocations(this.robots);
-
-			addMouseListener(this);
-
-			game.startGame();
-			threadListeningToKml();
-
-			Runnable move = new Runnable() {
-
-				@Override
-				public void run() {
-					while(game.isRunning()) {
-
-						try {
-							moveManualRobot();
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						System.out.println(game.toString());
-
+			@Override
+			public void run() {
+				while(game.isRunning()) {
+					try {
+						Thread.sleep(103);
+						moveManualRobot();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
 					}
-
 				}
-			};
-			Thread thread = new Thread(move);
-			thread.start();
-
-		}
-
-		//Automatic Game
-		else if(str.equals("Auto")) {
-			clearGame();
-			String userId = JOptionPane.showInputDialog("Enter your ID please");
-			int id = Integer.parseInt(userId);
-			this.ID = id;
-			String scenario = JOptionPane.showInputDialog("Pick a scenario number between 0 to 23");
-			int scanerioNumber = Integer.parseInt(scenario);
-			gameNumber = scanerioNumber;
-			initGame(scanerioNumber);
-
-			autoGame = new AutoGame(this.graph);
-			autoGame.buildRobotsPath(this.robots, this.fruits);
-
-			game.startGame();
-			threadListeningToKml();
-
-			Thread thread = new Thread(){
-				public void run(){
-					while(game.isRunning()) {
-						try {
-							Thread.sleep(103);
-							moveAutoRobots();
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					System.out.println(game.toString());
-				}
-			};
-			thread.start();
-		}
-
-
-		else if(str.equals("Game Info")) {
-			String userId = JOptionPane.showInputDialog("Enter your ID please");
-			int id = Integer.parseInt(userId);
-
-			Database db = new Database(id);
-			JOptionPane.showMessageDialog(null, "You played " + db.getNumberOfGames() + " game. \n"
-					+ "Your level is " + db.getLevel());
-
-		}
-
-		else if(str.equals("Place")) {
-			String userId = JOptionPane.showInputDialog("Enter your ID please");
-			int id = Integer.parseInt(userId);
-
-			Database db = new Database(id);
-			String s = "";
-			HashMap<Integer, Integer> map = db.classLocation();
-			for (int i = 0; i < 12; i++) {
-				if(i == 10) continue;
-				s += "Level:" + db.getStage(i) + 
-						" , Place: "  + map.get(db.getStage(i)) + "\n";
 			}
-			System.out.println(s);
-			JOptionPane.showMessageDialog(null, s );
+		};
+		Thread thread = new Thread(move);
+		thread.start();
 
-		}
+	}
+
+
+
+	public void playAuto() {
+		clearGame();
+		if(!startGameMesseges()) return;
+
+		autoGame = new AutoGame(this.graph);
+		autoGame.buildRobotsPath(this.robots, this.fruits);
+
+		game.startGame();
+		threadListeningToKml();
+
+		Thread thread = new Thread(){
+			public void run(){
+				while(game.isRunning()) {
+					try {
+						Thread.sleep(103);
+						moveAutoRobots();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				System.out.println(game.toString());
+			}
+		};
+		thread.start();
 	}
 
 
@@ -470,12 +384,13 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 	 */
 	private void moveAutoRobots() {
 		game.move();
+		int count = 0;
 		for(GraphRobot r : robots) {
 			while(!r.getPath().isEmpty()) {
 				game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
 				r.getPath().remove(0);
 			}
-			r.initRobot(game.getRobots().get(r.getId()));
+			r.initRobot(game.getRobots().get(count++));
 			r.setOnTheWay(false);
 		}	
 		initFruitsList();
@@ -485,38 +400,37 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 
 
 
-
 	/**
 	 * Function that listening to mouse pressed and find the mouse pressed location(Manual mode)
 	 * 
 	 * @param m - Mouse Event
 	 */
-	static int robotID = -1, nodeID = -1, clicked = 0;
+	static int nodeID = -1, clicked = 0, robotsLocationInList;
+	static GraphRobot robotByClick = null;
 	@Override
 	public void mousePressed(MouseEvent m) {
-
 		int x = m.getX();
 		int y = m.getY();
 		Point3D p = new Point3D(x, y);
+
 		clicked ++;
 
-		if (clicked == 2) {
-			robotID = -1;
+		if (clicked == 1) {
+			robotByClick = null;
 			nodeID = -1;
-			GraphRobot r = manualGame.findRobotByLocation(p, this.robots);
-			if (r != null) 
-				robotID = r.getId();
+			robotsLocationInList = manualGame.findRobotByLocation(p, this.robots);
+			if(robotsLocationInList == -1) System.out.println("Didnt find robot in the list");
+
+			robotByClick = robots.get(robotsLocationInList);
 		}
-		else if(clicked == 4) {
-			//If clicked not on robot
-			if(robotID == -1 ) {
+		else if(clicked == 2) {
+			if(robotByClick == null ) { //If clicked not on robot
 				clicked = 0;
-				robotID = -1;
 				nodeID = -1;
+				System.out.println("You didnt choose robot");
 				return;
 			}
-			GraphRobot r = robots.get(robotID);
-			node_data n = manualGame.findNodeByLocation(p, r.getSrc(), this.graph);
+			node_data n = manualGame.findNodeByLocation(p, robotByClick.getSrc(), this.graph);
 			if (n != null) 
 				nodeID = n.getKey();
 			clicked = 0;
@@ -525,41 +439,34 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 
 
 
-
+	static int initRobotAgain = 0;
 	/**
 	 * Function that move the robot to next node (Manual Mode)
 	 * 
 	 * @param m - Mouse Event
 	 */
 	private void moveManualRobot() throws InterruptedException {
-		GraphRobot r = null;
-		List<String> log= game.move();
-		if(log!= null) {
-			if(nodeID!= -1 && robotID != -1) {
-				r = robots.get(robotID);
-				if(r!= null) {
-					game.chooseNextEdge(r.getId(), nodeID);
-					Thread.sleep(300);
-					game.move();
-					initRobotList();
-					repaint();
+		game.move();
 
-				}
+		if(nodeID!= -1 && robotByClick != null) {
+			game.chooseNextEdge(robotByClick.getId(), nodeID);
+			if(initRobotAgain++ == 0) {
+				robotByClick.initRobot(game.getRobots().get(robotsLocationInList));
+				initRobotAgain = 0;
 			}
 		}
-		repaint();
 
-		if(r!= null && r.getDest() == -1) {
+		if(robotByClick != null && robotByClick.getDest() == -1) {
 			initFruitsList();
 			manualGame.setFruitsGuiLocations(this.fruits);
 			manualGame.setRobotGuiLocations(this.robots);
-
 		}
-
+		repaint();
 	}
 
+	
 
-
+	private int numberOfGames = 0;//Count the number of games
 	private void clearGame() {
 		this.graph = new DGraph();
 		this.rx = new Range(Integer.MAX_VALUE,Integer.MIN_VALUE);
@@ -568,6 +475,9 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 		this.fruits.clear();
 		autoGame = null;
 		manualGame = null;
+		if(numberOfGames++ != 0)
+			game.stopGame();
+		game = null;
 	}
 
 
@@ -589,6 +499,35 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 
 
 
+	/**
+	 * This function alert a input boxes for game scenario and user id.
+	 */
+	private boolean startGameMesseges() {
+		setVisible(true);
+		initGame();
+		
+		String userId = JOptionPane.showInputDialog("Enter your ID please");
+		int id = Integer.parseInt(userId);
+		this.ID = id;
+
+		String scenario = JOptionPane.showInputDialog("Pick a scenario number between 0 to 23");
+		int scanerioNumber = Integer.parseInt(scenario);
+		gameNumber = scanerioNumber;
+		if(scanerioNumber < 0 || scanerioNumber > 23) {
+			JOptionPane.showMessageDialog(this , "Worng scenario number", "ERROR", JOptionPane.ERROR_MESSAGE);
+			this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+			return false;
+		}
+
+		initGame(scanerioNumber);
+		return true;
+	}
+
+
+
+	/**
+	 * This function contains thread that listening for every change in the map for the kml file.
+	 */
 	private void threadListeningToKml() {
 		Thread t = new Thread(new Runnable() {
 
@@ -610,10 +549,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 							kml.setGame(game);
 							kml.setFruits(startTime,endTime);
 							kml.setRobots(startTime, endTime);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						} catch (InterruptedException e) {e.printStackTrace();}
 					}
 				}
 
@@ -662,26 +598,30 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener{
 	}
 
 
+
+	/////////// Unused functions ///////////
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
-
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
-
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
-
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
