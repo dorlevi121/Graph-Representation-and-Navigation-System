@@ -11,7 +11,7 @@ The goal of this game is to eat as many fruits as possible in the given time (30
 3. Click: File->Open Project from File System or Archive.
 4. Click: Archive..
 5. Choose the Zip file you have downloaded earlier (Step 1).
-6. Run "MainGUI" as Java Application.
+6. Run "MainGUI" as Java Application.  
 ![](https://github.com/dorlevi121/ex4/blob/master/readmeIMG/1.jpg)
 
 ## Graph Representation System
