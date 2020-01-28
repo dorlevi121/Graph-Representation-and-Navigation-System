@@ -64,37 +64,38 @@ The Graph_Algo class implementation the graph_algorithms interface.
 * shortestPath(int src, int dest) - Return the shortest path between 2 vertices.
 
 ## Graph Navigation System
-![](https://github.com/dorlevi121/ex4/blob/master/readmeIMG/2.jpg)
+![](https://github.com/dorlevi121/ex4/blob/master/readmeIMG/2.jpg)  
 The game has 2 modes:
 
 * **Automatic**
 * **Manual**  
+
 The goal of the automatic mode is to eat as much fruit as possible - for this goal,   I used the algorithms from Graph Representation System (Dijkstra, shortest path,   etc).  The manual mode the user can play by himself with a mouse click on the robot he wants to move and another click on the vertex that the robot will move to (Provided the vertices are neighboring).  
 Another option that I implemented its to export a KML file at the end of the game.
 When the game is to finish the system ask the user if he wants to save a KML file.
 In case and the user click yes. the system gives it to him a KML file and then the user can upload the KML file to  [Google Earth](https://earth.google.com) and see the original map with all him moves.
-.
-This tuturiel will help you to upload the KML file to google earth:
-https://support.google.com/earth/answer/7365595?co=GENIE.Platform%3DDesktop&hl=en
+.  
+This tuturiel will help you to upload the KML file to google earth:  
+https://support.google.com/earth/answer/7365595?co=GENIE.Platform%3DDesktop&hl=en  
 
-![](http://i.picasion.com/pic89/e359fd06a3f0840b5a0ceafd05e9a042.gif)
+![](http://i.picasion.com/pic89/e359fd06a3f0840b5a0ceafd05e9a042.gif)  
 
 Another thing that I implemented in the project is connecting to the database.
 When the user starts a new game he can enter his ID anf connect to the server.
-when the game is finish the score of the game and tie moves number saved in the database.
+when the game is finish the score of the game and tie moves number saved in the database.  
 
 ![](http://i.picasion.com/pic89/442ec6e5581e1df88dd4e8ffccaa776d.gif)
 
-The user has the following options:
+The user has the following options:  
 * Check its location relative to other users (for each step)
 * How many times he played
 * What is its maximum result
 The user cannot move to the next level until he reaches the desired minimum score (as shown in the table below).
-Another think that i implemented in the project is comecting to database
+Another think that i implemented in the project is comecting to database  
 
-![](http://i.picasion.com/pic89/373ae5a1a9ac482a463df7fce05a15d2.gif)
+![](http://i.picasion.com/pic89/373ae5a1a9ac482a463df7fce05a15d2.gif)  
 
-![](http://i.picasion.com/pic89/9e218b88a1a0d5d1f687cdc0d13823fb.gif)
+![](http://i.picasion.com/pic89/9e218b88a1a0d5d1f687cdc0d13823fb.gif)  
 
 |  Stage |Case   |Grade   |Moves   |
 | ------------ | ------------ | ------------ | ------------ |
