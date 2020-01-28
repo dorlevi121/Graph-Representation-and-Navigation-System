@@ -402,6 +402,7 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 	private void moveAutoRobots() {
 		List<String> log = game.move();
 		if(log!=null) {
+			int count = 0; //robot location
 			for(int i=0;i<log.size();i++) {
 				String robot_json = log.get(i);
 				try {
@@ -409,16 +410,18 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 					JSONObject ttt = line.getJSONObject("Robot");
 					int rid = ttt.getInt("id");
 					//int dest = ttt.getInt("dest");
-					int count = 0; //robot location
-
+					
 					GraphRobot r = getRobotById(rid);
+					if(r == null) continue;
+					
 					if(r.getPath().size() == 0) 
 						autoGame.buildRobotsPath(this.robots, this.fruits);
-
+					
 					while(!r.getPath().isEmpty()) {
 						game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
 						r.getPath().remove(0);
 					}
+					
 					initFruitsList();
 					r.initRobot(game.getRobots().get(count++));
 					autoGame.buildRobotsPath(this.robots, this.fruits);
