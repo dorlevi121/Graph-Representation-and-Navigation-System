@@ -1,11 +1,10 @@
 package tests;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
 import dataStructure.DGraph;
-import dataStructure.Edge;
 import dataStructure.Node;
 
 class DGraphTest {

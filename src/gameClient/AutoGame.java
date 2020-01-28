@@ -61,9 +61,9 @@ public class AutoGame {
 			temp = fruits.get(0);
 			double dist = Double.MAX_VALUE;
 			for(GraphFruit f : fruits) {
-				if(((dist - algoGraph.shortestPathDist(r.getSrc(), f.getEdge().getSrc()) <= 2) 
+				if(((dist - algoGraph.shortestPathDist(r.getSrc(), f.getEdge().getSrc()) < 2) 
 						&& !f.getVisited() && temp.getValue() < f.getValue() ) || 
-						((dist - algoGraph.shortestPathDist(r.getSrc(), f.getEdge().getSrc()) > 2) 
+						((dist - algoGraph.shortestPathDist(r.getSrc(), f.getEdge().getSrc()) >= 2) 
 								&& !f.getVisited()) ) {
 					dist = algoGraph.shortestPathDist(r.getSrc(), f.getEdge().getSrc());
 					temp = f;

@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 import org.json.JSONObject;
 
 import Server.game_service;
@@ -28,6 +30,8 @@ public class KML_Logger {
 	private Kml kml;
 	private Document doc;
 	private String kmlPath;
+
+
 
 	public KML_Logger(graph g) {
 		this.graph = g;
@@ -164,6 +168,7 @@ public class KML_Logger {
 		}
 		catch (Exception e) {
 			e.printStackTrace();		}
+		
 		System.out.println("Created KML file");
 
 	}
@@ -180,5 +185,17 @@ public class KML_Logger {
 
 			return fileContents.toString();
 		}
+	}
+	
+	
+	
+	public String getKmlPath() {
+		return kmlPath;
+	}
+
+
+
+	public void setKmlPath(String kmlPath) {
+		this.kmlPath = kmlPath;
 	}
 }

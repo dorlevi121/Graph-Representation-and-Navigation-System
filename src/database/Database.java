@@ -13,8 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import dataStructure.node_data;
-
 
 /**
  * This class connect to the database and get information 

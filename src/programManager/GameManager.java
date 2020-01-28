@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
-import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalTime;
@@ -29,7 +28,6 @@ import org.json.JSONObject;
 import Server.Game_Server;
 import Server.game_service;
 import dataStructure.DGraph;
-import dataStructure.Edge;
 import dataStructure.GraphFruit;
 import dataStructure.GraphRobot;
 import dataStructure.edge_data;
@@ -410,42 +408,27 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 					JSONObject line = new JSONObject(robot_json);
 					JSONObject ttt = line.getJSONObject("Robot");
 					int rid = ttt.getInt("id");
-					int dest = ttt.getInt("dest");
+					//int dest = ttt.getInt("dest");
 					int count = 0; //robot location
 
 					GraphRobot r = getRobotById(rid);
-						if(r.getPath().size() == 0) 
-							autoGame.buildRobotsPath(this.robots, this.fruits);
-
-						while(!r.getPath().isEmpty()) {
-							game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
-							r.getPath().remove(0);
-						}
-						initFruitsList();
-						r.initRobot(game.getRobots().get(count));
+					if(r.getPath().size() == 0) 
 						autoGame.buildRobotsPath(this.robots, this.fruits);
-					
-					//r.initRobot(game.getRobots().get(count++));
+
+					while(!r.getPath().isEmpty()) {
+						game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
+						r.getPath().remove(0);
+					}
+					initFruitsList();
+					r.initRobot(game.getRobots().get(count++));
+					autoGame.buildRobotsPath(this.robots, this.fruits);
+
 					repaint();
 				}
 				catch (JSONException e) {e.printStackTrace();}
 
 			}
 		}
-
-		//		int count = 0;
-		//		for(GraphRobot r : robots) {
-		//			while(!r.getPath().isEmpty()) {
-		//				game.chooseNextEdge(r.getId(), r.getPath().get(0).getKey());
-		//				r.getPath().remove(0);
-		//			}
-		//			initFruitsList();
-		//			r.initRobot(game.getRobots().get(count++));
-		//			autoGame.buildRobotsPath(this.robots, this.fruits);
-		//			repaint();
-		//		}	
-		//
-		//		game.move();
 	} 
 
 
@@ -456,6 +439,7 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 		}
 		return null;
 	}
+
 
 
 	/**
@@ -618,8 +602,10 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 					repaint();
 
 					kml.saveToFile(gameNumber, game.toString());
+					dialogKmlPath();
 					try {
 						game.sendKML(kml.getKmlFile());
+
 					} catch (IOException e) {
 						System.out.println("didnt find kml file");
 					}
@@ -637,8 +623,6 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 	 * @return
 	 */
 	public int dialogKML(){
-
-
 		try {
 			Object[] options = {"Yes", "No"};
 			int x = JOptionPane.showOptionDialog(null, "Do you want to save this game as KML file?\n" 
@@ -655,6 +639,12 @@ public class GameManager extends JFrame implements ActionListener, MouseListener
 		}
 	}
 
+
+
+	private void dialogKmlPath() {
+		JOptionPane.showMessageDialog(this , "KML file saved if path:\n" + kml.getKmlPath());
+
+	}
 
 
 	/////////// Unused functions ///////////

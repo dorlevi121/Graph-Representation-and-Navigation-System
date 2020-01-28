@@ -1,16 +1,18 @@
 package tests;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import algorithms.*;
-import dataStructure.*;
-import utils.*;
-import gui.*;
-import programManager.GrapgManager;
+import algorithms.Graph_Algo;
+import algorithms.graph_algorithms;
+import dataStructure.DGraph;
+import dataStructure.graph;
+import programManager.GraphManager;
+import utils.Point3D;
 
 /**
  * EX2 Structure test:
@@ -27,8 +29,7 @@ class Ex2Test {
 	private static graph _graph;
 	private static graph_algorithms _alg;
 	public static final double EPS = 0.001; 
-	private static Point3D min = new Point3D(0,0,0);
-	private static Point3D max = new Point3D(100,100,0);
+
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
 		_graph = tinyGraph();
@@ -56,8 +57,9 @@ class Ex2Test {
 		graph ans = new DGraph();
 		return ans;
 	}
+	
 	boolean drawGraph(graph g) { 
-		GrapgManager a = new GrapgManager(g);
+		GraphManager a = new GraphManager(g);
 		return true;	
 	}
 	
